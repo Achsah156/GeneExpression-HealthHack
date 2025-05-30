@@ -9,6 +9,18 @@ import seaborn as sns
 # Set page config
 st.set_page_config(page_title="Genescope", layout="wide")
 
+# Optional Theme
+st.markdown("""
+    <style>
+    body {
+        background-color: #fdfdfd;
+    }
+    h1, h2, h3 {
+        color: #222;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 # Title - Centered
 st.markdown("<h1 style='text-align: center;'> Gene Expression Analyzer</h1>", unsafe_allow_html=True)
 st.markdown("<hr>", unsafe_allow_html=True)
@@ -40,12 +52,23 @@ Hackathon : Codeholics Hack 4 Mini 2.0
 Team  : ZEN-PAL
     """)
 
+    st.markdown("##  Tutorial")
+    
+
+    with st.expander(" What is a Volcano Plot?"):
+        st.markdown("""
+        A volcano plot helps visualize changes in gene expression.  
+        - **X-axis:** log2 Fold Change  
+        - **Y-axis:** -log10 p-value  
+        Red dots show significantly differentially expressed genes.
+        """)
+
     demo_mode = st.checkbox("Use Demo Dataset")
-    geo_id = st.text_input("Enter GEO Series ID", placeholder="e.g., GSE42872",
+    geo_id = "GSE42872" if demo_mode else st.text_input("Enter GEO Series ID", placeholder="e.g., GSE42872",
                            help="Example GEO ID: GSE42872 (from https://www.ncbi.nlm.nih.gov/geo/)")
 
 # Landing Page when no input
-if not geo_id and not demo_mode:
+if not geo_id:
     st.markdown("<h2 style='text-align: center;'> Gene Expression Analyzer</h2>", unsafe_allow_html=True)
     st.markdown("""
 This project is built for **Codeholics Hack 4 Mini 2.0** under the **HealthTech & Bioinformatics** theme.  
@@ -138,17 +161,25 @@ if geo_id:
             "-log10(p-value)": -np.log10(p_vals)
         }).reset_index(drop=True)
 
+        results["NCBI Link"] = results["Gene"].apply(
+            lambda x: f"[{x}](https://www.ncbi.nlm.nih.gov/gene/?term={x})"
+        )
+
+        significant_genes = results[results["p-value"] < 0.05]
+        upregulated = significant_genes[significant_genes["logFC"] > 1]
+        downregulated = significant_genes[significant_genes["logFC"] < -1]
+
         st.success(" Differential expression analysis complete!")
 
-        # Identify top 10 DEGs
         top_genes = results.sort_values("p-value").head(10)
 
-        # Columns layout
         left_col, right_col = st.columns([1, 1.2], gap="large")
 
         with left_col:
-            st.markdown("### Statistical Summary")
-            st.dataframe(results.head(10), use_container_width=True)
+            st.markdown("###  Search & Explore DEGs")
+            search_term = st.text_input("Search by Gene ID:")
+            filtered_results = results[results["Gene"].str.contains(search_term, case=False)] if search_term else results
+            st.dataframe(filtered_results[["NCBI Link", "logFC", "p-value", "-log10(p-value)"]].head(50), use_container_width=True)
 
             csv = results.to_csv(index=False).encode('utf-8')
             st.download_button(
@@ -169,8 +200,6 @@ if geo_id:
                 palette={True: "red", False: "gray"},
                 ax=ax
             )
-
-            # Add gene labels for top 10
             for _, row in top_genes.iterrows():
                 ax.text(row["logFC"], row["-log10(p-value)"], row["Gene"], fontsize=7, alpha=0.8)
 
@@ -180,5 +209,21 @@ if geo_id:
             ax.axhline(y=-np.log10(0.05), color='blue', linestyle='--', linewidth=1)
             ax.grid(True)
             st.pyplot(fig)
+
+        st.markdown("###  Biological Insight")
+        st.markdown(f"""
+        - Total genes analyzed: **{len(results)}**
+        - Significant genes (p < 0.05): **{len(significant_genes)}**
+        - Upregulated genes (logFC > 1): **{len(upregulated)}**
+        - Downregulated genes (logFC < -1): **{len(downregulated)}**
+        """)
+
+        st.markdown("###  DEG Summary Chart")
+        fig2, ax2 = plt.subplots()
+        ax2.bar(["Upregulated", "Downregulated", "Not Significant"],
+                [len(upregulated), len(downregulated), len(results) - len(significant_genes)],
+                color=["red", "blue", "gray"])
+        ax2.set_ylabel("Number of Genes")
+        st.pyplot(fig2)
 else:
     st.info("ℹ Please enter a GEO Series ID in the sidebar to begin.")
