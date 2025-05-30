@@ -53,6 +53,7 @@ Team  : ZEN-PAL
     """)
 
     st.markdown("##  Tutorial")
+    st.video("https://www.flexclip.com/share/127303585fe08027339d2006c04964bf3fe2f6e0.html")
     
 
     with st.expander(" What is a Volcano Plot?"):
