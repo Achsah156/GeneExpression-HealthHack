@@ -9,7 +9,7 @@ import seaborn as sns
 st.set_page_config(page_title="GeneExpression-HealthHack", layout="wide")
 st.title("🧬 Gene Expression Analyzer – HealthTech Hackathon")
 
-geo_id = st.text_input("🔍 Enter GEO Series ID (e.g., GSE42872):")
+geo_id = "GSE42872"  # Hardcoded for testing
 
 if geo_id:
     with st.spinner("📥 Downloading dataset..."):
@@ -24,8 +24,13 @@ if geo_id:
             st.stop()
 
     st.subheader("🧬 Select Sample Groups to Compare")
-    group1 = st.multiselect("Healthy Group", options=data_matrix.columns)
-    group2 = st.multiselect("Diseased Group", options=data_matrix.columns)
+    # Pre-selected valid samples for GSE42872
+    group1 = ["GSM1052615", "GSM1052616", "GSM1052617"]
+    group2 = ["GSM1052618", "GSM1052619", "GSM1052620"]
+
+    st.write("✅ Group 1:", group1)
+    st.write("✅ Group 2:", group2)
+
 
     if group1 and group2:
         if set(group1).intersection(set(group2)):
