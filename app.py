@@ -7,12 +7,12 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 st.set_page_config(page_title="GeneExpression-HealthHack", layout="wide")
-st.title("🧬 Gene Expression Analyzer")
+st.title("🧬 Gene Expression Analyzer – HealthTech Hackathon")
 
-geo_id = st.text_input("Enter GEO Series ID (e.g., GSE42872):")
+geo_id = st.text_input("🔍 Enter GEO Series ID (e.g., GSE42872):")
 
 if geo_id:
-    with st.spinner(f"🔍 Fetching dataset {geo_id}..."):
+    with st.spinner("📥 Downloading dataset..."):
         try:
             gse = GEOparse.get_GEO(geo=geo_id, destdir="./")
             samples = gse.gsms
@@ -20,21 +20,21 @@ if geo_id:
             data_matrix.columns = list(samples.keys())
             st.success(f"✅ Loaded {len(samples)} samples.")
         except Exception as e:
-            st.error(f"❌ Failed to load dataset: {e}")
+            st.error(f"❌ Error loading GEO data: {e}")
             st.stop()
 
-    st.subheader("📌 Select Sample Groups for Comparison")
-    group1 = st.multiselect("Healthy Samples (Group 1)", options=list(data_matrix.columns))
-    group2 = st.multiselect("Diseased Samples (Group 2)", options=list(data_matrix.columns))
+    st.subheader("🧬 Select Sample Groups to Compare")
+    group1 = st.multiselect("Healthy Group", options=data_matrix.columns)
+    group2 = st.multiselect("Diseased Group", options=data_matrix.columns)
 
     if group1 and group2:
-        if len(set(group1).intersection(set(group2))) > 0:
-            st.error("❌ A sample can't be in both groups. Please select different ones.")
+        if set(group1).intersection(set(group2)):
+            st.error("❌ A sample can't be in both groups.")
             st.stop()
 
         try:
-            st.info("🧪 Performing statistical analysis...")
-            t_stat, p_vals = ttest_ind(data_matrix[group1], data_matrix[group2], axis=1)
+            # Run T-test
+            t_stat, p_vals = ttest_ind(data_matrix[group1], data_matrix[group2], axis=1, nan_policy='omit')
             log_fc = np.log2(data_matrix[group2].mean(axis=1) + 1) - np.log2(data_matrix[group1].mean(axis=1) + 1)
 
             results = pd.DataFrame({
@@ -43,10 +43,13 @@ if geo_id:
                 "-log10(p-value)": -np.log10(p_vals)
             })
 
-            # Clean data: remove NaNs and infs
+            # Clean invalid rows
             results_clean = results.replace([np.inf, -np.inf], np.nan).dropna()
 
-            st.write(f"🔍 Total genes: {len(results)} | Valid genes after cleaning: {len(results_clean)}")
+            st.subheader("📋 Result Summary (Top 5 Genes)")
+            st.dataframe(results_clean.head())
+
+            st.write(f"📊 Total Genes: {len(results)} | Plottable: {len(results_clean)}")
 
             if len(results_clean) > 0:
                 st.subheader("📈 Volcano Plot")
@@ -65,12 +68,13 @@ if geo_id:
                 ax.grid(True)
                 st.pyplot(fig)
 
-                # CSV download
+                # Download results
                 csv = results_clean.to_csv(index=False).encode("utf-8")
-                st.download_button("📥 Download DEG Results as CSV", csv, "deg_results.csv", "text/csv")
+                st.download_button("📥 Download Results", csv, "deg_results.csv", "text/csv")
             else:
-                st.warning("⚠️ No valid gene data to display. Try different samples.")
-
+                st.warning("⚠️ No valid gene results found to plot.")
         except Exception as e:
-            st.error(f"❌ Error during analysis: {e}")
+            st.error(f"❌ Error in statistical analysis: {e}")
+
+
 
