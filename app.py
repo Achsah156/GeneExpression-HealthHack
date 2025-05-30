@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 st.set_page_config(page_title="GeneExpression-HealthHack", layout="wide")
-st.title("🧬 Gene Expression Analyzer")
+st.title(" Gene Expression Analyzer")
 
 # User input
 geo_id = st.text_input("Enter GEO Series ID (e.g., GSE42872):")
@@ -19,15 +19,22 @@ if geo_id:
         data_matrix = pd.DataFrame({k: v.table["VALUE"] for k, v in samples.items()})
         data_matrix.columns = list(samples.keys())
 
-    st.success(f"✅ Loaded {len(samples)} samples.")
+    st.success(f" Loaded {len(samples)} samples.")
 
     st.subheader("Select Sample Groups for Comparison")
     group1 = st.multiselect("Healthy Samples", options=list(data_matrix.columns))
     group2 = st.multiselect("Diseased Samples", options=list(data_matrix.columns))
 
+    # ✅ Minimum sample check
     if group1 and group2:
-        st.info("🧪 Running T-test...")
-        t_stat, p_vals = ttest_ind(data_matrix[group1], data_matrix[group2], axis=1)
+        if len(group1) < 2 or len(group2) < 2:
+            st.warning(" Please select at least **2 samples in each group** for accurate comparison.")
+            st.stop()
+
+        st.info(" Running T-test...")
+
+        # Run T-test
+        t_stat, p_vals = ttest_ind(data_matrix[group1], data_matrix[group2], axis=1, nan_policy='omit')
         log_fc = np.log2(data_matrix[group2].mean(axis=1) + 1) - np.log2(data_matrix[group1].mean(axis=1) + 1)
 
         results = pd.DataFrame({
@@ -36,12 +43,19 @@ if geo_id:
             "-log10(p-value)": -np.log10(p_vals)
         })
 
-        st.success("✅ Analysis complete!")
+        st.success("Analysis complete!")
 
         # Volcano plot
         st.subheader("Volcano Plot")
         fig, ax = plt.subplots(figsize=(8, 6))
-        sns.scatterplot(data=results, x="logFC", y="-log10(p-value)", hue=results["p-value"] < 0.05, palette={True: "red", False: "gray"}, ax=ax)
+        sns.scatterplot(
+            data=results,
+            x="logFC",
+            y="-log10(p-value)",
+            hue=results["p-value"] < 0.05,
+            palette={True: "red", False: "gray"},
+            ax=ax
+        )
         ax.set_title("Volcano Plot")
         ax.set_xlabel("log2 Fold Change")
         ax.set_ylabel("-log10 p-value")
@@ -56,7 +70,3 @@ if geo_id:
             file_name="deg_results.csv",
             mime="text/csv"
         )
-
-
-
-
