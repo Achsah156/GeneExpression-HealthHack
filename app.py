@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Set page config
-st.set_page_config(page_title="GeneExpression-HealthHack", layout="wide")
+st.set_page_config(page_title="Genescope", layout="wide")
 
 # Title - Centered
 st.markdown("<h1 style='text-align: center;'> Gene Expression Analyzer</h1>", unsafe_allow_html=True)
@@ -23,18 +23,86 @@ with st.sidebar:
     It uses publicly available datasets from the NCBI GEO database.
     """)
 
-    st.markdown("## User Guide")
+    st.markdown("##  User Guide")
     st.markdown("""
-    1.  Enter a GEO Series ID (e.g., `GSE42872`)  
-    2.  Select at least 2 samples for each group  
-    3.  View statistical results  
-    4.  Explore the volcano plot  
-    5.  Download CSV of results
+    1. Enter a GEO Series ID (e.g., `GSE42872`)  
+    2. Select at least 2 samples for each group  
+    3. View statistical results  
+    4. Explore the volcano plot  
+    5. Download CSV of results
     """)
 
-    geo_id = st.text_input(" Enter GEO Series ID", placeholder="e.g., GSE42872")
+    st.markdown("##  Project Details")
+    st.markdown("""
+Title : Gene Expression Analyzer  
+Track : HealthTech & Bioinformatics  
+Hackathon : Codeholics Hack 4 Mini 2.0  
+Team  : ZEN-PAL
+    """)
 
-# Main logic
+    demo_mode = st.checkbox("Use Demo Dataset")
+    geo_id = st.text_input("Enter GEO Series ID", placeholder="e.g., GSE42872",
+                           help="Example GEO ID: GSE42872 (from https://www.ncbi.nlm.nih.gov/geo/)")
+
+# Landing Page when no input
+if not geo_id and not demo_mode:
+    st.markdown("<h2 style='text-align: center;'> Gene Expression Analyzer</h2>", unsafe_allow_html=True)
+    st.markdown("""
+This project is built for **Codeholics Hack 4 Mini 2.0** under the **HealthTech & Bioinformatics** theme.  
+Analyze gene expression data using public datasets from **NCBI GEO**.
+
+###  What can you do?
+- Compare healthy vs diseased samples
+- Identify differentially expressed genes (DEGs)
+- Visualize volcano plots
+- Export analysis results
+
+ Enter a **GEO Series ID** in the sidebar or enable **Demo Mode** to get started.
+""")
+    st.stop()
+
+# Optional Project Overview
+if st.checkbox(" Show Full Project Overview"):
+    st.markdown("##  Project Overview")
+    st.success("""
+###  Project Title: Genescope
+
+Hackathon: Codeholics Hack 4 Mini 2.0  
+Track    : HealthTech & Bioinformatics  
+Team Name: ZEN-PAL
+
+####  Objective
+Build a web-based tool to:
+- Fetch gene expression data from NCBI GEO
+- Let users define sample groups
+- Perform differential expression analysis (T-tests)
+- Visualize results with volcano plots
+- Download CSV of significant genes
+
+####  Tech Stack
+- Python + Streamlit
+- GEOparse (data)
+- Pandas / NumPy (processing)
+- SciPy (stats)
+- Matplotlib + Seaborn (plots)
+- GitHub (repo/deploy)
+
+####  Resources
+- [NCBI GEO](https://www.ncbi.nlm.nih.gov/geo/)
+- [Streamlit Docs](https://docs.streamlit.io/)
+- [GitHub Repo](https://github.com/yourusername/yourrepo)
+    """)
+    st.stop()
+
+# Tabbed Layout for Workflow
+st.markdown("###  Analysis Workflow")
+st.markdown("""
+1️ Load GEO Dataset →  
+2️ Select Healthy & Diseased Samples →  
+3️ Run T-Test →  
+4️ View Volcano Plot & Export Results  
+""")
+
 if geo_id:
     with st.spinner(f" Fetching dataset `{geo_id}`..."):
         gse = GEOparse.get_GEO(geo=geo_id, destdir="./")
@@ -45,12 +113,14 @@ if geo_id:
     st.success(f" Loaded {len(samples)} samples successfully!")
 
     st.markdown("###  Select Sample Groups for Comparison")
-    group1 = st.multiselect(" Healthy Samples", options=list(data_matrix.columns), key="healthy")
-    group2 = st.multiselect(" Diseased Samples", options=list(data_matrix.columns), key="diseased")
+    group1 = st.multiselect(" Healthy Samples", options=list(data_matrix.columns), key="healthy",
+                            help="Pick samples that represent the healthy control group")
+    group2 = st.multiselect(" Diseased Samples", options=list(data_matrix.columns), key="diseased",
+                            help="Pick samples that represent the disease condition")
 
     if group1 and group2:
         if len(group1) < 2 or len(group2) < 2:
-            st.warning("⚠️ Please select **at least 2 samples in each group** for meaningful statistical comparison.")
+            st.warning(" Please select **at least 2 samples in each group** for meaningful statistical comparison.")
             st.stop()
 
         st.info(" Performing statistical analysis...")
@@ -77,19 +147,19 @@ if geo_id:
         left_col, right_col = st.columns([1, 1.2], gap="large")
 
         with left_col:
-            st.markdown("###  Statistical Summary")
+            st.markdown("### Statistical Summary")
             st.dataframe(results.head(10), use_container_width=True)
 
             csv = results.to_csv(index=False).encode('utf-8')
             st.download_button(
-                "📥 Download Results as CSV",
+                " Download Results as CSV",
                 data=csv,
                 file_name="deg_results.csv",
                 mime="text/csv"
             )
 
         with right_col:
-            st.markdown("### 🌋 Volcano Plot")
+            st.markdown("###  Volcano Plot")
             fig, ax = plt.subplots(figsize=(8, 6))
             plot = sns.scatterplot(
                 data=results,
@@ -111,4 +181,4 @@ if geo_id:
             ax.grid(True)
             st.pyplot(fig)
 else:
-    st.info("ℹ️ Please enter a GEO Series ID in the sidebar to begin.")
+    st.info("ℹ Please enter a GEO Series ID in the sidebar to begin.")
