@@ -100,11 +100,35 @@ if geo_id:
                 ax.grid(True)
                 st.pyplot(fig)
 
-                # Download results
+    # Download button
                 csv = results_clean.to_csv(index=False).encode("utf-8")
                 st.download_button("📥 Download Results", csv, "deg_results.csv", "text/csv")
+
             else:
-                st.warning("⚠️ No valid gene results found to plot.")
+                st.warning("⚠️ No valid gene results found. Displaying demo volcano plot for illustration.")
+
+    # Show a fake demo plot
+                demo = pd.DataFrame({
+                    "logFC": np.random.normal(0, 2, 1000),
+                    "p-value": np.random.uniform(0, 1, 1000)
+                })
+                demo["-log10(p-value)"] = -np.log10(demo["p-value"])
+
+                fig, ax = plt.subplots(figsize=(8, 6))
+                sns.scatterplot(
+                    data=demo,
+                    x="logFC",
+                    y="-log10(p-value)",
+                    hue=demo["p-value"] < 0.05,
+                    palette={True: "red", False: "gray"},
+                    ax=ax
+                )
+                ax.set_title("Volcano Plot (Demo)")
+                ax.set_xlabel("log2 Fold Change")
+                ax.set_ylabel("-log10 p-value")
+                ax.grid(True)
+                st.pyplot(fig)
+
         except Exception as e:
             st.error(f"❌ Error in statistical analysis: {e}")
 
