@@ -25,8 +25,35 @@ if geo_id:
 
     st.subheader("🧬 Select Sample Groups to Compare")
     # Pre-selected valid samples for GSE42872
-    group1 = ["GSM1052615", "GSM1052616", "GSM1052617"]
-    group2 = ["GSM1052618", "GSM1052619", "GSM1052620"]
+    st.subheader("🧬 Select Sample Groups to Compare")
+
+# Known working samples from GSE42872
+    default_healthy = ["GSM1052615", "GSM1052616", "GSM1052617"]
+    default_diseased = ["GSM1052618", "GSM1052619", "GSM1052620"]
+
+    group1 = st.multiselect(
+        "Healthy Group (Group 1)",
+        options=data_matrix.columns,
+        default=default_healthy
+    )
+
+    group2 = st.multiselect(
+        "Diseased Group (Group 2)",
+        options=data_matrix.columns,
+        default=default_diseased
+    )
+
+# Check for errors
+    if not group1 or not group2:
+        st.warning("⚠️ Please select at least one sample in each group.")
+        st.stop()
+
+    if set(group1).intersection(set(group2)):
+        st.error("❌ A sample can't be in both groups. Please fix your selection.")
+        st.stop()
+
+    st.success(f"✅ Comparing {len(group1)} healthy vs {len(group2)} diseased samples.")
+
 
     st.write("✅ Group 1:", group1)
     st.write("✅ Group 2:", group2)
