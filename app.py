@@ -21,6 +21,20 @@ def load_lottieurl(url):
 # Load animations
 lottie_bio = load_lottieurl("https://lottie.host/4930dbf7-4ae7-4ee9-bd8d-0613a1d07ba6/UhloOa8pGg.json")
 lottie_plot = load_lottieurl("https://lottie.host/c84e52a1-d313-443a-9e13-d6f58d0db3cd/KLOmFiC2Jh.json")
+lottie_footer = load_lottieurl("https://lottie.host/f80d3c6b-8fc5-4c40-804e-e23c377c11d7/nL1vYQWOK4.json")
+
+# Top title with animation
+col1, col2 = st.columns([1, 5])
+with col1:
+    st_lottie(lottie_bio, height=120, key="logo")
+with col2:
+    st.markdown("""
+    <div style='padding-top: 10px'>
+        <h1 style='font-size: 36px;'>🔬 Genescope</h1>
+        <h4 style='color: gray;'>GeneExpression-HealthHack – Analyze gene expression, the smart way.</h4>
+    </div>
+    """, unsafe_allow_html=True)
+
 
 # Sidebar navigation
 st.sidebar.title("🔬 Navigation")
@@ -30,7 +44,7 @@ page = st.sidebar.radio("Go to:", ["Workspace", "User Guidelines", "About the Pr
 # PAGE: ABOUT
 # ==========================================
 if page == "About the Project":
-    st.title("🧬 GeneExpression-HealthHack")
+    st.markdown("##  About the Project")
     st.subheader("Simplifying bioinformatics for everyone.")
     st.markdown("""
     This web app helps researchers and students analyze gene expression datasets from NCBI GEO — without needing to write any code.  
@@ -47,7 +61,7 @@ if page == "About the Project":
 # PAGE: USER GUIDELINES
 # ==========================================
 elif page == "User Guidelines":
-    st.title("📘 How to Use This App")
+    st.markdown("## 📘 How to Use This App")
 
     with st.expander("Step-by-step Guide"):
         st.markdown("""
@@ -68,7 +82,7 @@ elif page == "User Guidelines":
 # PAGE: WORKSPACE
 # ==========================================
 elif page == "Workspace":
-    st.title("🧪 Gene Expression Workspace")
+    st.markdown("## 💼 Gene Expression Workspace"
 
     geo_id = st.text_input("Enter GEO Series ID (e.g., GSE42872):")
 
