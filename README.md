@@ -88,8 +88,4 @@ If you like this project:
 
  Share it with researchers and developers
 
- Star this repo
-
- Fork it
-
- Share it with researchers and developers
+ 
