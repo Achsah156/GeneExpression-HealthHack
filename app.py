@@ -25,7 +25,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Title - Centered
-st.markdown("<h1 style='text-align: center;'> Gene Expression Analyzer</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center;'> Gene Expression Explorer</h1>", unsafe_allow_html=True)
 st.markdown("<hr>", unsafe_allow_html=True)
 
 # Sidebar: About & Guide
@@ -34,7 +34,7 @@ with st.sidebar:
 
     st.markdown("##  About")
     st.info("""
-    This app helps researchers compare gene expression levels between two sets of biological samples (e.g., healthy vs diseased).  
+    This app helps researchers explore gene expression levels between two sets of biological samples (e.g., healthy vs diseased).  
     It uses publicly available datasets from the NCBI GEO database.
     """)
 
@@ -49,7 +49,7 @@ with st.sidebar:
 
     st.markdown("##  Project Details")
     st.markdown("""
-Title : Gene Expression Analyzer  
+Title : Gene Expression Explorer  
 Track : HealthTech & Bioinformatics  
 Hackathon : Codeholics Hack 4 Mini 2.0  
 Team  : ZEN-PAL
@@ -74,16 +74,16 @@ Team  : ZEN-PAL
 
 # Landing Page when no input
 if not geo_id:
-    st.markdown("<h2 style='text-align: center;'> Gene Expression Analyzer</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align: center;'> Gene Expression Explorer</h2>", unsafe_allow_html=True)
     st.markdown("""
 This project is built for **Codeholics Hack 4 Mini 2.0** under the **HealthTech & Bioinformatics** theme.  
-Analyze gene expression data using public datasets from **NCBI GEO**.
+Explore gene expression data using public datasets from **NCBI GEO**.
 
 ###  What can you do?
 - Compare healthy vs diseased samples
 - Identify differentially expressed genes (DEGs)
 - Visualize volcano plots
-- Export analysis results
+- Export exploration results
 
  Enter a **GEO Series ID** in the sidebar or enable **Demo Mode** to get started.
 """)
@@ -103,7 +103,7 @@ Team Name: ZEN-PAL
 Build a web-based tool to:
 - Fetch gene expression data from NCBI GEO
 - Let users define sample groups
-- Perform differential expression analysis (T-tests)
+- Perform differential expression exploration (T-tests)
 - Visualize results with volcano plots
 - Download CSV of significant genes
 
@@ -123,7 +123,7 @@ Build a web-based tool to:
     st.stop()
 
 # Tabbed Layout for Workflow
-st.markdown("###  Analysis Workflow")
+st.markdown("###  Exploration Workflow")
 st.markdown("""
 1️ Load GEO Dataset →  
 2️ Select Healthy & Diseased Samples →  
@@ -140,7 +140,7 @@ if geo_id:
 
     st.success(f" Loaded {len(samples)} samples successfully!")
 
-    st.markdown("###  Select Sample Groups for Comparison")
+    st.markdown("###  Select Sample Groups for Exploration")
     group1 = st.multiselect(" Healthy Samples", options=list(data_matrix.columns), key="healthy",
                             help="Pick samples that represent the healthy control group")
     group2 = st.multiselect(" Diseased Samples", options=list(data_matrix.columns), key="diseased",
@@ -151,7 +151,7 @@ if geo_id:
             st.warning(" Please select **at least 2 samples in each group** for meaningful statistical comparison.")
             st.stop()
 
-        st.info(" Performing statistical analysis...")
+        st.info(" Performing statistical exploration...")
 
         # Perform T-test and logFC
         t_stat, p_vals = ttest_ind(data_matrix[group1], data_matrix[group2], axis=1, nan_policy='omit')
@@ -174,7 +174,7 @@ if geo_id:
         upregulated = significant_genes[significant_genes["logFC"] > 1]
         downregulated = significant_genes[significant_genes["logFC"] < -1]
 
-        st.success(" Differential expression analysis complete!")
+        st.success(" Differential expression exploration complete! Dive into the insights below.")
 
         top_genes = results.sort_values("p-value").head(10)
 
@@ -188,7 +188,7 @@ if geo_id:
 
             csv = results.to_csv(index=False).encode('utf-8')
             st.download_button(
-                " Download Results as CSV",
+                " Download Exploration Results as CSV",
                 data=csv,
                 file_name="deg_results.csv",
                 mime="text/csv"
@@ -217,7 +217,7 @@ if geo_id:
 
         st.markdown("###  Biological Insight")
         st.markdown(f"""
-        - Total genes analyzed: **{len(results)}**
+        - Total genes explored: **{len(results)}**
         - Significant genes (p < 0.05): **{len(significant_genes)}**
         - Upregulated genes (logFC > 1): **{len(upregulated)}**
         - Downregulated genes (logFC < -1): **{len(downregulated)}**
@@ -232,3 +232,4 @@ if geo_id:
         st.pyplot(fig2)
 else:
     st.info("ℹ Please enter a GEO Series ID in the sidebar to begin.")
+
