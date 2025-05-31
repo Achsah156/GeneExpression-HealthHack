@@ -5,6 +5,9 @@ import numpy as np
 from scipy.stats import ttest_ind
 import matplotlib.pyplot as plt
 import seaborn as sns
+import os
+os.environ['GEOparse_DATA_DIR'] = '/tmp'
+
 
 # Set page config
 st.set_page_config(page_title="Genescope", layout="wide")
@@ -53,7 +56,7 @@ Team  : ZEN-PAL
     """)
 
     st.markdown("##  Tutorial")
-    st.video("https://www.flexclip.com/share/127303585fe08027339d2006c04964bf3fe2f6e0.html")
+    st.video("https://youtu.be/Z-RfohXBSAY?feature=shared")
     
 
     with st.expander(" What is a Volcano Plot?"):
