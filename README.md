@@ -61,7 +61,7 @@ genescope/
 | ─ ─ /data                # (Optional) Cached datasets
 ## Team 
 # ZEN-PAL
-Achsah Grace Karri,Srishanth , Laxmi 
+Achsah Grace Karri,Srishanth , Laxmi ,RamPrasad
 
 
 # Hackathon: 
