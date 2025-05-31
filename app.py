@@ -56,7 +56,8 @@ Team  : ZEN-PAL
     """)
 
     st.markdown("##  Tutorial")
-    st.video("https://www.youtube.com/watch?v=ysz5S6PUM-U")  # Streamlit test video
+    st.video("https://youtu.be/Z-RfohXBSAY")
+ # Streamlit test video
     
 
     with st.expander(" What is a Volcano Plot?"):
