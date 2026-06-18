@@ -128,7 +128,7 @@ genescope/
 
 | Name | Role |
 |---|---|
-| **Achsah Grace Karri** | Team Member |
+| **Achsah Grace Karri** | Team Leader |
 | **Srishanth** | Team Member |
 | **Laxmi** | Team Member |
 | **RamPrasad** | Team Member |
